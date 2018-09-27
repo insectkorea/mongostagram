@@ -4,5 +4,6 @@ def validate_mail(mail):
 	else:
 		return False
 
+
 def validate_password(pw):
 	pass

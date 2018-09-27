@@ -11,7 +11,7 @@ import err
 class User:
     def __init__(self):
         try:
-            self.client = MongoClient(serverSelectionTimeoutMS=1000)
+            self.client = MongoClient(host="54.180.82.107", port=27017, serverSelectionTimeoutMS=1000)
         except ServerSelectionTimeoutError:
             return
         self.db = self.client.test

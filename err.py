@@ -32,6 +32,7 @@ class NoPostError(BaseException):
 	def __init__(self):
 		self.message = "[INFO] There is no post on your wall"
 
+
 class LogOutException(BaseException):
 	def __init__(self):
 		pass

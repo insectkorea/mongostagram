@@ -93,8 +93,8 @@ class App:
         self.main()
 
     def main(self):
-	try:
-	        action = Action(self.new_user)
-	except LogOutException:
-		self.__init__()
+        try:
+            action = Action(self.new_user)
+        except err.LogOutException:
+            self.__init__()
 

@@ -18,6 +18,7 @@ class Action:
             action = eval(action_input)
         except:
             print("[ERROR] Wrong action")
+            on_end()
             return
         if action == 1:
             on_start()
@@ -25,7 +26,7 @@ class Action:
             try:
                 mail, username, message, d_in, d_up = self.user.get_status()
             except err.DBConnectionError as e:
-                print(e.message)
+                handle_error(e.message)
                 return
             print("Your mail: ", mail)
             print("Your name: ", username)
@@ -33,24 +34,24 @@ class Action:
                 print("Your status message: ", message)
             print("Your last sign-in: ", d_in)
             print("Your sign-up: ", d_up)
-            self.on_end()
+            on_end()
 
         elif action == 2:
             pass
         elif action == 3:
             try:
                 posts = self.user.get_posts()
+                for post in posts:
+                    print("-" * 50)
+                    print("Title: ", post["title"])
+                    print(post["content"])
             except err.DBConnectionError as e:
-                print(e.message)
+                handle_error(e.message)
                 return
             except err.NoPostError as e:
-                print(e.message)
+                handle_error(e.message)
                 return
-            for post in posts:
-                print("-" * 50)
-                print("Title: ", post["title"])
-                print(post["content"])
-            self.on_end()
+            on_end()
         elif action == 4:
             on_start()
             self.write_post()
@@ -63,21 +64,19 @@ class Action:
             del self.user
             raise err.LogOutException
         else:
-            print("[ERROR] Wrong action")
-
-    def on_end(self):
-        input("\nPress Enter to go back...")
-        self.__init__(self.user)
+            handle_error("[ERROR] Wrong action")
+            return
 
     def write_post(self):
         title = input("Title: ")
-        print("Enter/Paste your content. Ctrl-D or Ctrl-Z ( windows ) to save it.")
+        print("Enter/Paste your content. :q to quit, :wq to save and quit")
         contents = ""
         while True:
-            try:
-                line = input()
-            except EOFError:
+            line = input()
+            if line == ":q":
+                return
+            elif line == ":wq":
                 break
             contents = contents + line + "\n"
         self.user.write_post(title, contents)
-        self.__init__(self.user)
+

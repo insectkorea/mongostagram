@@ -8,6 +8,7 @@ from action import Action
 class App:
     def __init__(self):
         self.new_user = User()
+        self.action = None
         if not self.new_user:
             print("[ERROR] Server is not available. Try again")
             return
@@ -24,7 +25,7 @@ class App:
         try:
             action = eval(action_input)
         except:
-            print("[ERROR] Wrong action")
+            handle_error("[ERROR] Wrong action")
             return
 
         if action == 1:
@@ -34,7 +35,8 @@ class App:
         elif action == 3:
             exit()
         else:
-            print("[ERROR] Wrong action")
+            handle_error("[ERROR] Wrong action")
+            return
 
     def sign_up(self):
         on_start()
@@ -43,30 +45,30 @@ class App:
         try:
             self.new_user.set_mail_sign_up(mail)
         except err.DBConnectionError as e:
-            print(e.message)
+            handle_error(e.message)
             return
         except err.AlreadySignedUpError as e:
-            print(e.message)
+            handle_error(e.message)
             return
         except err.InvalidMailError as e:
-            print(e.message)
+            handle_error(e.message)
             return
         pw = getpass("Your password: ")
         pw_v = getpass("Password again: ")
         if pw != pw_v or not pw:
-            print("[ERROR] Wrong password")
+            handle_error("[ERROR] Wrong password")
             return
         self.new_user.set_password(pw)
         username = input("Your username(6 ~ 12 characters): ")
         try:
             self.new_user.set_username(username)
         except err.InvalidUsernameError as e:
-            print(e.message)
+            handle_error(e.message)
             return
         try:
             self.new_user.sign_up()
         except err.DBConnectionError as e:
-            print(e.message)
+            handle_error(e.message)
             return
         print("\n[INFO] Successfully signed up. Hello, ", username)
         self.main()
@@ -77,24 +79,27 @@ class App:
         mail = input("Your mail: ")
         pw = getpass("Your password: ")
         if not mail or not pw:
-            print("[ERROR] Not valid mail or password")
+            handle_error("[ERROR] Not valid mail or password")
             return
         self.new_user.set_mail_sign_in(mail)
         self.new_user.set_password(pw)
         try:
             result = self.new_user.sign_in()
         except err.DBConnectionError as e:
-            print(e.message)
+            handle_error(e.message)
             return
         except err.InvalidSignInParamError as e:
-            print(e.message)
+            handle_error(e.message)
             return
         print("\n[INFO] Successfully signed in. Hello, ", result["username"])
         self.main()
 
     def main(self):
-        try:
-            action = Action(self.new_user)
-        except err.LogOutException:
-            self.__init__()
+        while True:
+            try:
+                self.action = Action(self.new_user)
+            except err.LogOutException:
+                self.__init__()
+                break
+
 

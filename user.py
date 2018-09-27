@@ -97,4 +97,3 @@ class User:
 
     def sign_out(self):
         self.client.close()
-        del self

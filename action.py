@@ -60,7 +60,8 @@ class Action:
             pass
         elif action == 7:
             self.user.sign_out()
-            self.__init__(self.user)
+            del self.user
+            raise err.LogOutException
         else:
             print("[ERROR] Wrong action")
 

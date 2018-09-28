@@ -58,7 +58,11 @@ class Sign:
             handle_error("[ERROR] Not valid mail or password")
             return
         self.user.set_mail_sign_in(mail)
-        self.user.set_password(pw)
+        try:
+            self.user.set_password(pw)
+        except err.InvalidPasswordError as e:
+                handle_error(e.message)
+                return
         try:
             self.user.sign_in()
         except err.DBConnectionError as e:

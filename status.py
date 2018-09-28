@@ -1,8 +1,19 @@
 from ui import *
 import err
-import msvcrt
 from getpass import getpass
+import sys
+import tty
+import termios
 
+def getkey():
+    fd = sys.stdin.fileno()
+    original_attributes = termios.tcgetattr(fd)
+    try:
+        tty.setraw(sys.stdin.fileno())
+        ch = sys.stdin.read(1)
+    finally:
+        termios.tcsetattr(fd, termios.TCSADRAIN, original_attributes)
+    return ch
 
 class Status:
     def __init__(self, user):
@@ -23,8 +34,18 @@ class Status:
         print("Your last sign-in: ", d_in)
         print("Your sign-up: ", d_up)
         print("\nPress E to edit or any to continue")
-        if msvcrt.getch().lower() == b'e':
+        if getkey().lower() == b'e':
             self.update_status()
+
+    def getkey():
+        fd = sys.stdin.fileno()
+        original_attributes = termios.tcgetattr(fd)
+        try:
+            tty.setraw(sys.stdin.fileno())
+            ch = sys.stdin.read(1)
+        finally:
+            termios.tcsetattr(fd, termios.TCSADRAIN, original_attributes)
+        return ch
 
     def update_status(self):
         on_start()

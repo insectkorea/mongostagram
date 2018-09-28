@@ -100,11 +100,13 @@ class User:
             update_result = self.collection.update_one({"mail": self.mail, "password": self.pw},
                                                        {"$set": {"date_signin": datetime.now()}})
             self.userinfo = self.collection.find_one({"mail": self.mail, "password": self.pw})
-            self.username = self.userinfo["username"]
         except:
             raise err.DBConnectionError
-        if not self.userinfo:
+        if self.userinfo:
+            self.username = self.userinfo["username"]
+        else:
             raise err.InvalidSignInParamError
+            
 
     def write_post(self, title, content):
         tags = []

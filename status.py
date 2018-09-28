@@ -1,19 +1,7 @@
 from ui import *
 import err
 from getpass import getpass
-import sys
-import tty
-import termios
 
-def getkey():
-    fd = sys.stdin.fileno()
-    original_attributes = termios.tcgetattr(fd)
-    try:
-        tty.setraw(sys.stdin.fileno())
-        ch = sys.stdin.read(1)
-    finally:
-        termios.tcsetattr(fd, termios.TCSADRAIN, original_attributes)
-    return ch
 
 class Status:
     def __init__(self, user):
@@ -34,18 +22,9 @@ class Status:
         print("Your last sign-in: ", d_in)
         print("Your sign-up: ", d_up)
         print("\nPress E to edit or any to continue")
-        if getkey().lower() == b'e':
+        key = getkey()
+        if key.lower() == b'e' or key.lower() == 'e':
             self.update_status()
-
-    def getkey():
-        fd = sys.stdin.fileno()
-        original_attributes = termios.tcgetattr(fd)
-        try:
-            tty.setraw(sys.stdin.fileno())
-            ch = sys.stdin.read(1)
-        finally:
-            termios.tcsetattr(fd, termios.TCSADRAIN, original_attributes)
-        return ch
 
     def update_status(self):
         on_start()
@@ -53,7 +32,7 @@ class Status:
         status_input = input("What do you want to edit? ")
         try:
             status = eval(status_input)
-        except ValueError:
+        except:
             handle_error("[ERROR] Wrong action")
             return
         if status == 1:

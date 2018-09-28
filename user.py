@@ -20,6 +20,8 @@ class User:
         self.mail = None
         self.username = None
         self.pw = None
+        self.follower = []
+        self.following = []
 
     def get_status(self):
         try:
@@ -27,7 +29,7 @@ class User:
         except:
             raise err.DBConnectionError
         return self.mail, self.userinfo["username"], self.userinfo["message"], self.userinfo["date_signin"], \
-               self.userinfo["date_signup"]
+               self.userinfo["date_signup"], self.userinfo["follower"], self.userinfo["following"]
 
     def set_mail_sign_up(self, mail):
         if not validate_mail(mail) or not mail:
@@ -45,18 +47,50 @@ class User:
         self.mail = mail
 
     def set_password(self, pw):
-        self.pw = md5(pw.encode('utf-8')).hexdigest()
+        if validate_password(pw):
+            self.pw = md5(pw.encode('utf-8')).hexdigest()
+        else:
+            raise err.InvalidPasswordError
+
+    def change_password(self, pw):
+        self.set_password(pw)
+        try:
+            update_result = self.collection.update_one({
+                "mail": self.mail
+            }, {"$set": {"password": pw}})
+        except:
+            raise err.DBConnectionError
 
     def set_username(self, username):
         if len(username) < 6 or len(username) > 12:
             raise err.InvalidUsernameError
+        elif self.collection.find_one({"username": username}):
+            raise err.AlreadyExistUsernameError
         else:
             self.username = username
+
+    def change_message(self, message):
+        try:
+            update_result = self.collection.update_one({
+                "mail": self.mail
+            }, {"$set": {"message": message}})
+        except:
+            raise err.DBConnectionError
+
+    def change_username(self, username):
+        self.set_username(username)
+        try:
+            update_result = self.collection.update_one({
+                "mail": self.mail
+            }, {"$set": {"username": username}})
+        except:
+            raise err.DBConnectionError
 
     def sign_up(self):
         try:
             self.collection.insert_one(
                 {"mail": self.mail, "password": self.pw, "username": self.username, "date_signup": datetime.now(),
+                 "follower": [], "following": [],
                  "message": None, "date_signin": datetime.now()})
         except:
             raise err.DBConnectionError
@@ -66,12 +100,11 @@ class User:
             update_result = self.collection.update_one({"mail": self.mail, "password": self.pw},
                                                        {"$set": {"date_signin": datetime.now()}})
             self.userinfo = self.collection.find_one({"mail": self.mail, "password": self.pw})
+            self.username = self.userinfo["username"]
         except:
             raise err.DBConnectionError
         if not self.userinfo:
             raise err.InvalidSignInParamError
-        else:
-            return self.userinfo
 
     def write_post(self, title, content):
         tags = []
@@ -81,7 +114,8 @@ class User:
                     tags.append(tag.split("#")[1])
         try:
             update_result = self.collection.update_one({"mail": self.mail, "password": self.pw}, {
-                "$push": {"posts": {"title": title, "content": content, "comments": [], "hashtag": tags}}})
+                "$push": {"posts": {"title": title, "content": content, "comments": [],
+                                    "hashtag": tags, "date": datetime.now()}}})
         except:
             raise err.DBConnectionError
 

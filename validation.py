@@ -6,4 +6,4 @@ def validate_mail(mail):
 
 
 def validate_password(pw):
-	pass
+	return len(pw) > 6

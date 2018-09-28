@@ -8,6 +8,11 @@ class InvalidSignInParamError(BaseException):
 		self.message = "[ERROR] Wrong mail or password. check it again"
 
 
+class InvalidPasswordError(BaseException):
+	def __init__(self):
+		self.message = "[ERROR] Password must be longer than 6 words"
+
+
 class NoSuchUserError(BaseException):
 	def __init__(self):
 		self.message = "[ERROR] No such user"
@@ -36,3 +41,8 @@ class NoPostError(BaseException):
 class LogOutException(BaseException):
 	def __init__(self):
 		pass
+
+
+class AlreadyExistUsernameError(BaseException):
+	def __init__(self):
+		self.message = "[ERROR] Username already exists"

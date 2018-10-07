@@ -10,6 +10,7 @@ class Sign:
     def sign_up(self):
         on_start()
         print("Sign up Procedure")
+        print("********* Password must be longer than 6 words **********")
         mail = input("Your mail: ")
         try:
             self.user.set_mail_sign_up(mail)
@@ -23,14 +24,14 @@ class Sign:
             handle_error(e.message)
             return
         pw = getpass("Your password: ")
-        pw_v = getpass("Password again: ")
-        if pw != pw_v or not pw:
-            handle_error("[ERROR] Wrong password")
-            return
         try:
             self.user.set_password(pw)
         except err.InvalidPasswordError as e:
             handle_error(e.message)
+            return
+        pw_v = getpass("Password again: ")
+        if pw != pw_v or not pw:
+            handle_error("[ERROR] Wrong password")
             return
         username = input("Your username(6 ~ 12 characters): ")
         try:

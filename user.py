@@ -34,10 +34,11 @@ class User:
                self.userinfo["date_signup"], self.userinfo["follower"], self.userinfo["following"]
 
     def get_post_number(self):
-        try:
-            self.post_number = self.user.count_documents({})
-        except:
-            raise err.DBConnectionError
+        if not self.post_number:
+            try:
+                self.post_number = len(self.user.find_one({"mail": self.mail})["posts"])
+            except:
+                raise err.DBConnectionError
         return self.post_number
 
     def set_mail_sign_up(self, mail):
@@ -127,14 +128,14 @@ class User:
                                               "hashtag": tags, "write_date": datetime.now(), "edit_date": datetime.now()})
             if result.inserted_id:
                 self.user.update_one({"mail": self.mail, "password": self.pw}, {"$push": {"posts": result.inserted_id}})
-
+            self.post_number += 1
         except:
             raise err.DBConnectionError
 
     def get_posts(self, page, page_size):
         try:
             result = self.user.find_one({"mail": self.mail},
-                                        {"posts": {"$slice": [4 * page * page_size, 4 * (page + 1) * page_size]}})
+                                        {"posts": {"$slice": [page * page_size, (page + 1) * page_size]}})
         except:
             raise err.DBConnectionError
         if result.get("posts"):
@@ -147,6 +148,7 @@ class User:
             self.user.update_one({"mail": self.mail}, {"$pull": {"posts": post_id}})
             result = self.post.delete_one({"_id": post_id})
             if result.deleted_count:
+                self.post_number -= 1
                 return True
             else:
                 return False

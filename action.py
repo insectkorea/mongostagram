@@ -27,7 +27,7 @@ class Action:
         elif action == 2:
             pass
         elif action == 3:
-            self.post.get_wall()
+            self.post.get_wall(0)
         elif action == 4:
             self.post.write_post()
         elif action == 5:

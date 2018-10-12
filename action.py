@@ -25,7 +25,7 @@ class Action:
         if action == 1:
             Status(self.user)
         elif action == 2:
-            pass
+            self.post.get_feed(0)
         elif action == 3:
             self.post.get_wall(0)
         elif action == 4:

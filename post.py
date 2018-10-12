@@ -9,27 +9,30 @@ class Post:
         self.page_size = 5
 
     def get_wall(self, page):
+        self._get_posts(page, 0)
+
+    def get_feed(self, page):
+        self._get_posts(page, 1)
+
+    def _get_posts(self, page, switch):
         on_start()
-        try:
-            total = self.user.get_post_number()
-            print("Total count:", total)
-            posts = list(self.user.get_posts(page, self.page_size))
-            for idx, post in enumerate(posts):
-                print(idx+1)
-                print("Title: ", post["title"])
-                print("Date: ", post["write_date"])
-                print(post["content"])
-                print("-" * 50)
-                for comment in post["comments"]:
-                    print("Commenter: ", comment["username"])
-                    print(comment["content"])
-        except err.DBConnectionError as e:
-            handle_error(e.message)
-            return
-        except err.NoPostError as e:
-            handle_error(e.message)
-            return
         while True:
+            try:
+                if not switch:
+                    total = self.user.get_post_number()
+                    posts = list(self.user.get_wall(page, self.page_size))
+                else:
+                    total = self.user.get_feed_number()
+                    posts = list(self.user.get_feed(page, self.page_size))
+                for idx, post in enumerate(posts):
+                    print(idx+1)
+                    self._post_ui(post)
+            except err.DBConnectionError as e:
+                handle_error(e.message)
+                return
+            except err.NoPostError as e:
+                handle_error(e.message)
+                return
             now = page + 1
             last = math.ceil(total / self.page_size)
             if now == last and last == 1:
@@ -41,16 +44,16 @@ class Post:
             else:
                 print("n: Next page, p: Prev page")
             print((page + 1), "/", math.ceil(total / self.page_size))
-            action_input = input("Select post number to edit: (Enter to quit)")
+            action_input = input("Select post number to edit: (Enter to quit) ")
             if action_input:
                 pass
             else:
                 return
             if action_input == "n":
-                self.get_wall(page + 1)
+                self._get_posts(page + 1, switch)
                 return
             elif action_input == "p":
-                self.get_wall(page - 1)
+                self._get_posts(page - 1, switch)
                 return
             try:
                 action = eval(action_input)
@@ -80,13 +83,10 @@ class Post:
             handle_error("[ERROR] Wrong action")
             return
         if action == 1:
-            pass
+            self.delete_post(post)
+            return
         elif action == 2:
-            delete_input = input("Are you sure? [y/n] ")
-            if delete_input.lower() == "y":
-                self.delete_post(post["_id"])
-            else:
-                return
+            handle_error("[ERROR] Not implemented")
         else:
             handle_error("[ERROR] Wrong action")
             return
@@ -94,7 +94,10 @@ class Post:
     def write_post(self):
         on_start()
         title = input("Title: ")
-        print("Enter/Paste your content. :q to quit, :wq to save and quit")
+        if not title:
+            handle_error("[ERROR] Title cannot be blank")
+            return
+        print("Enter your content. :q to quit, :wq to save and quit")
         contents = []
         while True:
             line = input()
@@ -105,25 +108,31 @@ class Post:
             contents.append(line)
         self.user.write_post(title, "\n".join(contents))
 
-    def delete_post(self, _id):
-        if self.user.delete_post(_id):
-            print("[INFO] Successfully deleted")
+    def delete_post(self, post):
+        try:
+            self.user.auth(post["user_id"])
+        except err.AccessDenyError as e:
+            handle_error(e.message)
+            return
+        delete_input = input("Are you sure? [Y / n] ")
+        if delete_input.lower() == "y":
+            if self.user.delete_post(post["_id"]):
+                print("[INFO] Successfully deleted")
+            else:
+                print("[ERROR] Failed to delete")
+                return
         else:
-            print("[ERROR] Failed to delete")
+            return
         on_end()
 
-    # def modify_post(self, post):
-    #     print("1. Title 2. Content")
-    #     modify_input = input("Select your action: ")
-    #     try:
-    #         modify = eval(modify_input)
-    #     except ValueError:
-    #         handle_error("[ERROR] Wrong action")
-    #         return
-    #     if modify == 1:
-    #         title = input() or post["title"]
-    #     elif modify == 2:
-    #         content = input() or post["content"]
-    #     on_start()
+    def _post_ui(self, post):
+        print("Title: ", post["title"])
+        print("Date: ", post["write_date"])
+        print("Author: ", post["username"])
+        print(post["content"])
+        print("-" * 50)
+        for comment in post["comments"]:
+            print("Commenter: ", comment["username"])
+            print(comment["content"])
 
 

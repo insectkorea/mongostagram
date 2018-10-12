@@ -17,13 +17,14 @@ class User:
         self.db = self.client.test
         self.post = self.db.post
         self.user = self.db.user
-        self.userinfo = None
+        self.userinfo = {}
         self.mail = None
         self.username = None
         self.pw = None
         self.follower = []
         self.following = []
         self.post_number = 0
+        self.feed_number = 0
 
     def get_status(self):
         try:
@@ -37,9 +38,19 @@ class User:
         if not self.post_number:
             try:
                 self.post_number = len(self.user.find_one({"mail": self.mail})["posts"])
+            except KeyError:
+                return 0
             except:
                 raise err.DBConnectionError
         return self.post_number
+
+    def get_feed_number(self):
+        if not self.feed_number:
+            try:
+                self.feed_number = self.post.count_documents({})
+            except:
+                raise err.DBConnectionError
+        return self.feed_number
 
     def set_mail_sign_up(self, mail):
         if not validate_mail(mail) or not mail:
@@ -98,12 +109,16 @@ class User:
 
     def sign_up(self):
         try:
-            self.user.insert_one(
+            result = self.user.insert_one(
                 {"mail": self.mail, "password": self.pw, "username": self.username, "date_signup": datetime.now(),
                  "follower": [], "following": [],
                  "message": None, "date_signin": datetime.now()})
         except:
             raise err.DBConnectionError
+        if not result.inserted_id:
+            return
+        else:
+            self.userinfo["_id"] = result.inserted_id
 
     def sign_in(self):
         try:
@@ -125,21 +140,36 @@ class User:
                     tags.append(tag.split("#")[1])
         try:
             result = self.post.insert_one({"title": title, "content": content, "comments": [],
+                                           "user_id":self.userinfo["_id"], "username":self.username,
                                               "hashtag": tags, "write_date": datetime.now(), "edit_date": datetime.now()})
             if result.inserted_id:
                 self.user.update_one({"mail": self.mail, "password": self.pw}, {"$push": {"posts": result.inserted_id}})
-            self.post_number += 1
+            if self.post_number:
+                self.post_number += 1
+            if self.feed_number:
+                self.feed_number += 1
         except:
             raise err.DBConnectionError
 
-    def get_posts(self, page, page_size):
+    def get_wall(self, page, page_size):
         try:
             result = self.user.find_one({"mail": self.mail},
-                                        {"posts": {"$slice": [page * page_size, (page + 1) * page_size]}})
+                                        {"posts": {"$slice": [page * page_size, page_size]}})
         except:
             raise err.DBConnectionError
         if result.get("posts"):
             return self.post.find({"_id": {"$in": result["posts"]}})
+        else:
+            raise err.NoPostError
+
+    def get_feed(self, page, page_size):
+        try:
+            result = self.post.find().skip(page * page_size).limit(page_size)
+            result = list(result)
+        except:
+            raise err.DBConnectionError
+        if result:
+            return result
         else:
             raise err.NoPostError
 
@@ -148,7 +178,10 @@ class User:
             self.user.update_one({"mail": self.mail}, {"$pull": {"posts": post_id}})
             result = self.post.delete_one({"_id": post_id})
             if result.deleted_count:
-                self.post_number -= 1
+                if self.post_number:
+                    self.post_number -= 1
+                if self.feed_number:
+                    self.feed_number -= 1
                 return True
             else:
                 return False
@@ -157,3 +190,7 @@ class User:
 
     def sign_out(self):
         self.client.close()
+
+    def auth(self, id):
+        if id != self.userinfo["_id"]:
+            raise err.AccessDenyError

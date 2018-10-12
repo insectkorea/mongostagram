@@ -35,7 +35,7 @@ class InvalidUsernameError(BaseException):
 
 class NoPostError(BaseException):
 	def __init__(self):
-		self.message = "[INFO] There is no post on your wall"
+		self.message = "[INFO] There is no post on your wall or feed"
 
 
 class LogOutException(BaseException):
@@ -46,3 +46,8 @@ class LogOutException(BaseException):
 class AlreadyExistUsernameError(BaseException):
 	def __init__(self):
 		self.message = "[ERROR] Username already exists"
+
+
+class AccessDenyError(BaseException):
+	def __init__(self):
+		self.message = "[ERROR] You're not allowed to delete this post"

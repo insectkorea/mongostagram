@@ -152,19 +152,28 @@ class User:
             raise err.DBConnectionError
 
     def get_wall(self, page, page_size):
+        """
         try:
             result = self.user.find_one({"mail": self.mail},
                                         {"posts": {"$slice": [page * page_size, page_size]}})
         except:
             raise err.DBConnectionError
-        if result.get("posts"):
-            return self.post.find({"_id": {"$in": result["posts"]}})
+        """
+        try:
+            result = self.post.find({"user_id":self.userinfo["_id"]}).sort([("write_date", -1)]).skip(page * page_size).limit(page_size)
+            result = list(result)
+        except:
+            raise err.DBConnectionError
+        #if result.get("posts"):
+        #    return self.post.find({"_id": {"$in": result["posts"]}})
+        if result:
+            return result
         else:
             raise err.NoPostError
 
     def get_feed(self, page, page_size):
         try:
-            result = self.post.find().skip(page * page_size).limit(page_size)
+            result = self.post.find().sort([("write_date", -1)]).skip(page * page_size).limit(page_size)
             result = list(result)
         except:
             raise err.DBConnectionError

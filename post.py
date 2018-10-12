@@ -25,7 +25,7 @@ class Post:
                     total = self.user.get_feed_number()
                     posts = list(self.user.get_feed(page, self.page_size))
                 for idx, post in enumerate(posts):
-                    print(idx+1)
+                    print("[%d]" %(idx+1))
                     self._post_ui(post)
             except err.DBConnectionError as e:
                 handle_error(e.message)
@@ -35,6 +35,8 @@ class Post:
                 return
             now = page + 1
             last = math.ceil(total / self.page_size)
+            print((page + 1), "/", math.ceil(total / self.page_size))
+            print("")
             if now == last and last == 1:
                 pass
             elif now == last:
@@ -43,8 +45,9 @@ class Post:
                 print("n: Next page")
             else:
                 print("n: Next page, p: Prev page")
-            print((page + 1), "/", math.ceil(total / self.page_size))
-            action_input = input("Select post number to edit: (Enter to quit) ")
+            print("[1-5]: Post details")
+            print("")
+            action_input = input("Select your action: (Enter to quit) ")
             if action_input:
                 pass
             else:

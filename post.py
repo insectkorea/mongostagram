@@ -75,7 +75,7 @@ class Post:
         print("Title: ", post["title"])
         print("Date: ", post["write_date"])
         print(post["content"])
-        print("1. Delete 2. Comments")
+        print("1. Delete post 2. Comments")
         action_input = input("Select your action: ")
         if action_input:
             pass
@@ -134,13 +134,8 @@ class Post:
         print("Date: ", post["write_date"])
         print("Author: ", post["username"])
         print(post["content"])
+        if post["comments"]:
+            print("Comments:", len(post["comments"]))
         print("-" * 50)
-        if post.get("comment_list"):
-            for idx, comment in enumerate(post["comment_list"]):
-                print("▷   [%d]" % (idx+1))
-                print("    Commenter: ", comment["username"])
-                print("    Date:", comment["write_date"])
-                print("   ", comment["content"])
-                print("-" * 30)
 
 

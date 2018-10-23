@@ -264,7 +264,20 @@ class User:
     def _attach_comment(self, posts):
         for idx, post in enumerate(posts):
             comment_list = []
-            for comment_id in post["comments"]:
+            for i, comment_id in enumerate(post["comments"]):
+                if i > 3:
+                    break
                 comment_list.append(self._get_comment(comment_id))
             posts[idx]["comment_list"] = comment_list
         return posts
+
+    def delete_comment(self, comment_id):
+        result = self.post.update_one({"comments": comment_id}, {"$pull": {"comments": comment_id}})
+        if result.modified_count:
+            result = self.comment.delete_one({"_id": comment_id})
+            if result.deleted_count:
+                return True
+        return False
+
+
+

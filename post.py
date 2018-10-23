@@ -47,7 +47,7 @@ class Post:
                 print("n: Next page, p: Prev page")
             print("[1-5]: Post details")
             print("")
-            action_input = input("Select your action: (Enter to quit) ")
+            action_input = input("Select your action (Enter to quit):")
             if action_input:
                 pass
             else:

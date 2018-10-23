@@ -197,6 +197,40 @@ class User:
         except:
             raise err.DBConnectionError
 
+    def get_follower(self):
+        try:
+            result = self.user.find({"username":self.username}, {"_id":0, "follower":1})
+            result = list(result)
+        except:
+            raise err.DBConnectionError
+        if result[0]['follower']:
+            return result
+        else:
+            raise err.NoFollowerError
+
+    def get_username(self, username):
+        try:
+            result = self.user.find({"username":username}, {"_id":0, "username":1})
+            result = list(result)
+        except:
+            raise err.DBConnectionError
+        if result:
+            return result
+        else:
+            raise err.NoSuchUserError
+
+    def add_follower(self, username):
+        try:
+            self.user.update_one({"mail": self.mail, "password": self.pw}, {"$push": {"follower": username}})
+        except:
+            raise err.DBConnectionError
+
+    def delete_follower(self, username):
+        try:
+            self.user.update_one({"mail": self.mail, "password": self.pw}, {"$pull": {"follower": username}})
+        except:
+            raise err.DBConnectionError
+
     def sign_out(self):
         self.client.close()
 

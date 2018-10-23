@@ -2,20 +2,20 @@ from ui import *
 import err
 from status import Status
 from post import Post
-
+from follow import Follow
 
 class Action:
     def __init__(self, user):
         on_start()
         self.user = user
         self.post = Post(self.user)
+        self.follow = Follow(self.user)
         print("1. My status")
         print("2. News feed")
         print("3. Wall")
         print("4. Post")
-        print("5. Follow")
-        print("6. UnFollow")
-        print("7. Logout")
+        print("5. My follow")
+        print("6. Logout")
         action_input = input("Select your action: ")
         try:
             action = eval(action_input)
@@ -31,10 +31,9 @@ class Action:
         elif action == 4:
             self.post.write_post()
         elif action == 5:
+            self.follow.get_follower()
             pass
         elif action == 6:
-            pass
-        elif action == 7:
             self.user.sign_out()
             del self.user
             raise err.LogOutException

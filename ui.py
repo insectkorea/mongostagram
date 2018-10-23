@@ -11,6 +11,9 @@ def handle_error(message):
     print(message)
     on_end()
 
+def handle_follow_error(message):
+    print(message)
+
 try:
     import msvcrt
     def getkey():

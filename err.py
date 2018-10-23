@@ -51,3 +51,7 @@ class AlreadyExistUsernameError(BaseException):
 class AccessDenyError(BaseException):
 	def __init__(self):
 		self.message = "[ERROR] You're not allowed to delete this post"
+
+class NoFollowerError(BaseException):
+	def __init__(self):
+		self.message = "[INFO] There is no follower"

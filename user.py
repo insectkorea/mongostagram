@@ -17,6 +17,7 @@ class User:
         self.db = self.client.test
         self.post = self.db.post
         self.user = self.db.user
+        self.comment = self.db.comment
         self.userinfo = {}
         self.mail = None
         self.username = None
@@ -160,12 +161,10 @@ class User:
             raise err.DBConnectionError
         """
         try:
-            result = self.post.find({"user_id":self.userinfo["_id"]}).sort([("write_date", -1)]).skip(page * page_size).limit(page_size)
-            result = list(result)
+            result = list(self.post.find({"user_id": self.userinfo["_id"]}).sort([("write_date", -1)]).skip(page * page_size).limit(page_size))
+            result = self._attach_comment(result)
         except:
             raise err.DBConnectionError
-        #if result.get("posts"):
-        #    return self.post.find({"_id": {"$in": result["posts"]}})
         if result:
             return result
         else:
@@ -173,8 +172,8 @@ class User:
 
     def get_feed(self, page, page_size):
         try:
-            result = self.post.find().sort([("write_date", -1)]).skip(page * page_size).limit(page_size)
-            result = list(result)
+            result = list(self.post.find().sort([("write_date", -1)]).skip(page * page_size).limit(page_size))
+            result = self._attach_comment(result)
         except:
             raise err.DBConnectionError
         if result:
@@ -237,3 +236,33 @@ class User:
     def auth(self, id):
         if id != self.userinfo["_id"]:
             raise err.AccessDenyError
+
+    def _get_comment(self, comment_id):
+        try:
+            comment = self.comment.find_one({"_id": comment_id})
+        except:
+            raise err.DBConnectionError
+        return comment
+
+    def get_comments(self, post_id):
+        result = self.post.find_one({"_id": post_id})
+        comment_list = []
+        for comment_id in result["comments"]:
+            comment_list.append(self._get_comment(comment_id))
+        return comment_list
+
+    def write_comment(self, post_id, content):
+        try:
+            result = self.comment.insert_one({"username": self.username, "content": content, "write_date": datetime.now()})
+            if result.inserted_id:
+                self.post.update_one({"_id": post_id}, {"$push": {"comments": result.inserted_id}})
+        except:
+            raise err.DBConnectionError
+
+    def _attach_comment(self, posts):
+        for idx, post in enumerate(posts):
+            comment_list = []
+            for comment_id in post["comments"]:
+                comment_list.append(self._get_comment(comment_id))
+            posts[idx]["comment_list"] = comment_list
+        return posts

@@ -1,6 +1,7 @@
 import err
 import math
 from ui import *
+from comment import Comment
 
 
 class Post:
@@ -89,7 +90,7 @@ class Post:
             self.delete_post(post)
             return
         elif action == 2:
-            handle_error("[ERROR] Not implemented")
+            Comment(self.user, post["_id"]).get_comments()
         else:
             handle_error("[ERROR] Wrong action")
             return
@@ -134,8 +135,12 @@ class Post:
         print("Author: ", post["username"])
         print(post["content"])
         print("-" * 50)
-        for comment in post["comments"]:
-            print("Commenter: ", comment["username"])
-            print(comment["content"])
+        if post.get("comment_list"):
+            for idx, comment in enumerate(post["comment_list"]):
+                print("▷   [%d]" % (idx+1))
+                print("    Commenter: ", comment["username"])
+                print("    Date:", comment["write_date"])
+                print("   ", comment["content"])
+                print("-" * 30)
 
 

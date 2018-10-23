@@ -220,15 +220,15 @@ class User:
 
     def add_follower(self, username):
         try:
-            self.user.update_one({"mail": self.mail, "password": self.pw}, {"$push": {"follower": username}})
-            self.user.update_one({"username":username}, {"$push":{"following":self.username}})
+            self.user.update_one({"mail": self.mail, "password": self.pw}, {"$push": {"following": username}})
+            self.user.update_one({"username":username}, {"$push":{"follower":self.username}})
         except:
             raise err.DBConnectionError
 
     def delete_follower(self, username):
         try:
-            self.user.update_one({"mail": self.mail, "password": self.pw}, {"$pull": {"follower": username}})
-            self.user.update_one({"username":username}, {"$pull":{"following":self.username}})
+            self.user.update_one({"mail": self.mail, "password": self.pw}, {"$pull": {"following": username}})
+            self.user.update_one({"username":username}, {"$pull":{"follower":self.username}})
         except:
             raise err.DBConnectionError
 

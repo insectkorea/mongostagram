@@ -39,7 +39,7 @@ class Action:
         elif action == 6:
             self.search.search()
             pass
-        elif action == 6:
+        elif action == 7:
             self.user.sign_out()
             del self.user
             raise err.LogOutException

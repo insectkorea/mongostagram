@@ -39,12 +39,6 @@ class Follow:
                 self.add_follower()
             elif action_input == "2":
                 self.delete_follower()
-            try:
-                action = eval(action_input)
-            except:
-                handle_error("[ERROR] Wrong action")
-                return
-
 
     def add_follower(self):
         self._add_follower()

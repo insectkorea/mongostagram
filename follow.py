@@ -15,13 +15,21 @@ class Follow:
                 follower_list = list(self.user.get_follower()[0]['follower'])
                 print("This is your follower list")
                 print(follower_list)
-                print("-"*50)
+                '''
+                for i in range(len(follower_list)):
+                    get_status = list(self.user.find({"username": follower_list[i]}, {"_id":0, "username":1, "message":1}))
+                    print("[%d]" % i)
+                    print("username: "+get_status[0]['username']+", message: "+get_status[0]['message'])
+                print("*"*100)
+                '''
             except err.DBConnectionError as e:
                 handle_follow_error(e.message)
             except err.NoFollowerError as e:
                 handle_follow_error(e.message)
+            print("")
             print("1. Follow")
             print("2. Unfollow")
+            print("")
             action_input = input("Select your action (Enter to quit): ")
             if action_input:
                 pass
@@ -29,10 +37,8 @@ class Follow:
                 return
             if action_input == "1":
                 self.add_follower()
-                return
             elif action_input == "2":
                 self.delete_follower()
-                return
             try:
                 action = eval(action_input)
             except:
@@ -48,27 +54,38 @@ class Follow:
         print("Write USER NAME of person you want to follow")
         follower_username = input("username:")
         if not follower_username:
-            handle_error("[ERROR] You must write down the user name")
+            handle_error("[INFO] You must write down the user name")
+            print("-"*50)
+            print()
             return
         if follower_username == self.user.username:
-            handle_error("[ERROR] You can not follow yourself")
+            handle_error("[INFO] You can not follow yourself")
+            print("-"*100)
+            print()
             return
         try:
             self.user.get_username(follower_username)
             follower_list = list(self.user.get_follower()[0]['follower'])
             if follower_username in follower_list:
-                handle_error("[ERROR] You already follow this user!")
+                handle_error("[INFO] You already follow this user!")
+                print("-" * 100)
+                print()
                 return
         except err.DBConnectionError as e:
             handle_follow_error(e.message)
             return
         except err.NoSuchUserError as e:
-            handle_follow_error(e.message)
+            handle_follow_error("[INFO] There is no user of that username. Check gain!")
+            print("-"*100)
+            print()
             return
         except err.NoFollowerError as e:
             pass
         self.user.add_follower(follower_username)
-        print("You follow "+follower_username+"from now on")
+        print()
+        print("You follow "+follower_username+" from now on")
+        print("-" * 100)
+        print()
         return
 
     def delete_follower(self):
@@ -79,23 +96,38 @@ class Follow:
         print("Write USER NAME of person you want to unfollow")
         follower_username = input("username:")
         if not follower_username:
-            handle_error("[ERROR] You must write down the user name")
+            handle_error("[INFO] You must write down the user name")
+            print("-"*100)
+            print()
             return
         if follower_username == self.user.username:
-            handle_error("[ERROR] You can not follow yourself")
+            handle_error("[INFO] You can not unfollow yourself")
+            print("-"*100)
+            print()
             return
         try:
             self.user.get_username(follower_username)
             follower_list = list(self.user.get_follower()[0]['follower'])
+            print(follower_list)
             if follower_username not in follower_list:
-                handle_error("[ERROR] You already do not follow this user!")
                 return
         except err.DBConnectionError as e:
             handle_follow_error(e.message)
             return
         except err.NoSuchUserError as e:
-            handle_follow_error(e.message)
+            handle_follow_error("[INFO] There is no user of that username. Check gain!")
+            print("-"*100)
+            print()
+            return
+        except err.NoFollowerError as e:
+            handle_follow_error("[INFO] You already do not follow this user!")
+            print("-" * 100)
+            print()
             return
         self.user.delete_follower(follower_username)
-        print("You unfollow "+follower_username+"from now on")
+        print()
+        print("You unfollow "+follower_username+" from now on")
+        print()
+        print("-" * 100)
+        print()
         return

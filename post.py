@@ -57,7 +57,6 @@ class Post:
             print("[1-5]: Post details")
             print("")
             action_input = input("Select your action (Enter to quit): ")
-            print(action_input)
             if not action_input:
                 break
             elif action_input == "n":

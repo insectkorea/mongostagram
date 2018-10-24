@@ -214,6 +214,7 @@ class User:
 
     def add_follower(self, username):
         try:
+            self.userinfo["following"].append(username)
             self.user.update_one({"mail": self.mail, "password": self.pw}, {"$push": {"following": username}})
             self.user.update_one({"username":username}, {"$push":{"follower":self.username}})
         except:
@@ -221,6 +222,7 @@ class User:
 
     def delete_follower(self, username):
         try:
+            self.userinfo["following"].remove(username)
             self.user.update_one({"mail": self.mail, "password": self.pw}, {"$pull": {"following": username}})
             self.user.update_one({"username":username}, {"$pull":{"follower":self.username}})
         except:

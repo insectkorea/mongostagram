@@ -74,16 +74,17 @@ class Post:
                     return
                 else:
                     self._get_posts(0, 2)
-            try:
-                action = eval(action_input)
-            except:
-                handle_error("[ERROR] Wrong action")
-                return
-            if action < len(posts)+1:
-                self.get_post_detail(posts[action-1])
             else:
-                handle_error("[ERROR] Wrong action")
-                return
+                try:
+                    action = eval(action_input)
+                except:
+                    handle_error("[ERROR] Wrong action")
+                    return
+                if action < len(posts)+1:
+                    self.get_post_detail(posts[action-1])
+                else:
+                    handle_error("[ERROR] Wrong action")
+                    return
 
     def get_post_detail(self, post):
         on_start()

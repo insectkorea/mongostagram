@@ -101,7 +101,7 @@ class Follow:
             return
         try:
             self.user.get_username(follower_username)
-            follower_list = list(self.user.get_follower()[0]['follower'])
+            follower_list = list(self.user.get_follower()[0]['following'])
             print(follower_list)
             if follower_username not in follower_list:
                 handle_follow_error("[INFO] There is no user of that username. Check gain!")

@@ -69,7 +69,7 @@ class Follow:
             handle_follow_error(e.message)
             return
         except err.NoSuchUserError as e:
-            handle_follow_error("[INFO] There is no user of that username. Check gain!")
+            handle_follow_error("[INFO] There is no user of that username. Check again!")
             print("-"*100)
             print()
             return
@@ -104,7 +104,7 @@ class Follow:
             follower_list = list(self.user.get_follower()[0]['following'])
             print(follower_list)
             if follower_username not in follower_list:
-                handle_follow_error("[INFO] There is no user of that username. Check gain!")
+                handle_follow_error("[INFO] There is no user of that username. Check again!")
                 print("-" * 100)
                 print()
                 return
@@ -112,7 +112,7 @@ class Follow:
             handle_follow_error(e.message)
             return
         except err.NoSuchUserError as e:
-            handle_follow_error("[INFO] There is no user of that username. Check gain!")
+            handle_follow_error("[INFO] There is no user of that username. Check again!")
             print("-"*100)
             print()
             return

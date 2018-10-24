@@ -12,9 +12,9 @@ class Follow:
         on_start()
         while True:
             try:
-                follower_list = list(self.user.get_follower()[0]['follower'])
+                following_list = list(self.user.get_follower()[0]['following'])
                 print("This is your follower list")
-                print(follower_list)
+                print(following_list)
                 '''
                 for i in range(len(follower_list)):
                     get_status = list(self.user.find({"username": follower_list[i]}, {"_id":0, "username":1, "message":1}))
@@ -59,7 +59,7 @@ class Follow:
             return
         try:
             self.user.get_username(follower_username)
-            follower_list = list(self.user.get_follower()[0]['follower'])
+            follower_list = list(self.user.get_follower()[0]['following'])
             if follower_username in follower_list:
                 handle_error("[INFO] You already follow this user!")
                 print("-" * 100)
@@ -104,6 +104,9 @@ class Follow:
             follower_list = list(self.user.get_follower()[0]['follower'])
             print(follower_list)
             if follower_username not in follower_list:
+                handle_follow_error("[INFO] There is no user of that username. Check gain!")
+                print("-" * 100)
+                print()
                 return
         except err.DBConnectionError as e:
             handle_follow_error(e.message)

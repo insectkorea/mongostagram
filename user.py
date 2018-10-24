@@ -198,7 +198,7 @@ class User:
 
     def get_follower(self):
         try:
-            result = self.user.find({"username":self.username}, {"_id":0, "follower":1})
+            result = self.user.find({"username":self.username}, {"_id":0, "following":1})
             result = list(result)
         except:
             raise err.DBConnectionError
@@ -231,6 +231,25 @@ class User:
             self.user.update_one({"username":username}, {"$pull":{"follower":self.username}})
         except:
             raise err.DBConnectionError
+
+    def search_hashtag(self, hashtag, page, page_size):
+        try:
+            hashtag_post = list(self.post.find({"hashtag":hashtag}).sort([("write_date", -1)]).skip(page * page_size).limit(page_size))
+        except:
+            raise err.DBConnectionError
+        if hashtag_post:
+            return hashtag_post
+        else:
+            raise err.NoPostError
+
+    def get_post_number2(self, hashtag):
+        try:
+            post_number = len(list(self.user.find({"hashtag":hashtag}))[0])
+        except KeyError:
+            return 0
+        except:
+            raise err.DBConnectionError
+        return post_number
 
     def sign_out(self):
         self.client.close()

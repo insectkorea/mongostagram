@@ -20,7 +20,7 @@ class Post:
         while True:
             try:
                 if not switch:
-                    total = self.user.get_post_number()
+                    total = self.user.get_post_number2(hashtag)
                     posts = list(self.user.get_wall(page, self.page_size))
                 else:
                     total = self.user.get_feed_number()

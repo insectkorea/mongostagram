@@ -3,7 +3,7 @@ import err
 from status import Status
 from post import Post
 from follow import Follow
-from search import Search
+
 
 class Action:
     def __init__(self, user):
@@ -11,14 +11,12 @@ class Action:
         self.user = user
         self.post = Post(self.user)
         self.follow = Follow(self.user)
-        self.search = Search(self.user)
         print("1. My status")
         print("2. News feed")
         print("3. Wall")
         print("4. Post")
         print("5. My follow")
-        print("6. Search")
-        print("7. Logout")
+        print("6. Logout")
         action_input = input("Select your action: ")
         try:
             action = eval(action_input)
@@ -37,9 +35,6 @@ class Action:
             self.follow.get_follower()
             pass
         elif action == 6:
-            self.search.search()
-            pass
-        elif action == 7:
             self.user.sign_out()
             del self.user
             raise err.LogOutException

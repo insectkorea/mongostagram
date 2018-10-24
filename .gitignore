@@ -79,5 +79,8 @@ fabric.properties
 # Sonarlint plugin
 .idea/sonarlint
 
+#pycache
+__pycache__/
+
 
 # End of https://www.gitignore.io/api/pycharm

@@ -17,16 +17,15 @@ class Comment:
         else:
             print("[INFO] No comments on this post")
         print("1. Write comment 2. Delete comment")
-        action_input = input("Select your action (Enter to quit) ")
-        try:
-            if action_input:
+        action_input = input("Select your action (Enter to quit): ")
+        if not action_input:
+            return
+        else:
+            try:
                 action = eval(action_input)
-            else:
+            except ValueError:
                 handle_error("[ERROR] Wrong action")
                 return
-        except ValueError:
-            handle_error("[ERROR] Wrong action")
-            return
         if action == 1:
             self.write_comment()
         elif action == 2:

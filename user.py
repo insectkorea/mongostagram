@@ -162,7 +162,7 @@ class User:
         """
         try:
             result = list(self.post.find({"user_id": self.userinfo["_id"]}).sort([("write_date", -1)]).skip(page * page_size).limit(page_size))
-            result = self._attach_comment(result)
+            # result = self._attach_comment(result)
         except:
             raise err.DBConnectionError
         if result:
@@ -202,7 +202,7 @@ class User:
             result = list(result)
         except:
             raise err.DBConnectionError
-        if result[0]['follower']:
+        if result[0]['following']:
             return result
         else:
             raise err.NoFollowerError
@@ -244,9 +244,11 @@ class User:
 
     def get_post_number2(self, hashtag):
         try:
-            post_number = len(list(self.user.find({"hashtag":hashtag}))[0])
-        except KeyError:
-            return 0
+            result = list(self.post.find({"hashtag":hashtag}))
+            if result:
+                post_number = len(result)
+            else:
+                post_number = 0
         except:
             raise err.DBConnectionError
         return post_number

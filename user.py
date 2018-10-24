@@ -25,7 +25,6 @@ class User:
         self.follower = []
         self.following = []
         self.post_number = 0
-        self.feed_number = 0
 
     def get_status(self):
         try:
@@ -46,12 +45,11 @@ class User:
         return self.post_number
 
     def get_feed_number(self):
-        if not self.feed_number:
-            try:
-                self.feed_number = self.post.count_documents({})
-            except:
-                raise err.DBConnectionError
-        return self.feed_number
+        try:
+            feed_number = self.post.find({"username": {"$in": self.userinfo["following"]}}).count()
+        except:
+            raise err.DBConnectionError
+        return feed_number
 
     def set_mail_sign_up(self, mail):
         if not validate_mail(mail) or not mail:
@@ -147,8 +145,6 @@ class User:
                 self.user.update_one({"mail": self.mail, "password": self.pw}, {"$push": {"posts": result.inserted_id}})
             if self.post_number:
                 self.post_number += 1
-            if self.feed_number:
-                self.feed_number += 1
         except:
             raise err.DBConnectionError
 
@@ -172,8 +168,8 @@ class User:
 
     def get_feed(self, page, page_size):
         try:
-            result = list(self.post.find().sort([("write_date", -1)]).skip(page * page_size).limit(page_size))
-            result = self._attach_comment(result)
+            result = list(self.post.find({"username":{"$in":self.userinfo["following"]}}).sort([("write_date", -1)]).skip(page * page_size).limit(page_size))
+            # result = self._attach_comment(result)
         except:
             raise err.DBConnectionError
         if result:
@@ -188,8 +184,6 @@ class User:
             if result.deleted_count:
                 if self.post_number:
                     self.post_number -= 1
-                if self.feed_number:
-                    self.feed_number -= 1
                 return True
             else:
                 return False

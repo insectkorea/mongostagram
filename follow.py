@@ -13,7 +13,7 @@ class Follow:
         while True:
             try:
                 following_list = list(self.user.get_follower()[0]['following'])
-                print("This is your follower list")
+                print("This is your following list")
                 print(following_list)
                 '''
                 for i in range(len(follower_list)):
